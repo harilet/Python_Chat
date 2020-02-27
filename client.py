@@ -1,37 +1,71 @@
-#Client side program
-import socket;
+import socket
 from threading import *
-	
-s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-p=input("Enter port number:")
-s.connect(('172.20.3.63',p))
+from tkinter import *
+import tkinter.scrolledtext as tkst
 
-f=0
 
-def send():
-	global f
-	while(True):
-		data=raw_input()
-		s.send(data)
-		if data=="stop" or f==1:
-			f=1
-			break;
+def client(m, ip, port):
+    try:
+        m.destroy()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((ip, int(port)))
 
-def recv():
-	global f
-	while(True):
-		data=s.recv(1024)
-		print data
-		if data=="stop" or f==1:
-			f=1
-			break;	
-t1=Thread(target=send)
-t2=Thread(target=recv)
+        mk = Tk()
+        mk.title(ip)
+        editArea = tkst.ScrolledText(
+            master=mk,
+            wrap=WORD,
+            width=20,
+            height=10
+        )
+        editArea.grid(row=0, column=0, sticky="NEWS", columnspan=2)
+        sendtext=Entry(mk)
+        sendtext.grid(row=1, column=0, sticky="NEWS")
 
-t1.start()
-t2.start()
+        def send():
 
-t1.join()
-t2.join()
+            data = sendtext.get()
+            s.send(data.encode('utf-8'))
+            sendtext.delete(0, 'end')
 
-s.close()
+        button = Button(mk, text='SEND', width=25, command=lambda: send())
+        button.grid(row=1, column=2, sticky="NEWS")
+
+        def recv():
+
+            while True:
+                data = s.recv(1024)
+                print(data.decode('utf-8', 'strict'))
+                editArea.insert(INSERT, data.decode('utf-8', 'strict')+"\n")
+                if data == "stop":
+                    break
+
+        t2 = Thread(target=recv)
+
+        t2.start()
+
+        mk.mainloop()
+
+        s.close()
+
+    except Exception as a:
+        print(a)
+
+
+try:
+    m = Tk()
+    m.title("Client")
+    Label(m, text="IP").grid(row=0, column=0, sticky="NEWS")
+    Label(m, text="PORT").grid(row=0, column=2, sticky="NEWS")
+
+    ip = Entry(m)
+    port = Entry(m)
+    ip.grid(row=0, column=1)
+    port.grid(row=0, column=3)
+
+    button = Button(m, text='CONNECT', width=25, command=lambda: client(m,ip.get(), port.get()))
+    button.grid(row=1, column=2, sticky="NEWS")
+
+except Exception as a:
+    print(a)
+m.mainloop()
