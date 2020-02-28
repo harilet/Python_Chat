@@ -2,6 +2,7 @@ import socket
 from threading import *
 from tkinter import *
 import tkinter.scrolledtext as tkst
+from tkinter.filedialog import askopenfilename
 
 
 def client(m, ip, port):
@@ -27,13 +28,18 @@ def client(m, ip, port):
 
             data = sendtext.get()
             s.send(data.encode('utf-8'))
-            """editArea.config(state=NORMAL)
-            editArea.insert(INSERT, "YOU:"+data + "\n")
-            editArea.config(state=DISABLED)"""
             sendtext.delete(0, 'end')
 
+        def send_file():
+            filename = askopenfilename()
+            fp = open(filename, "r")
+            for j in fp:
+                s.send(j.encode('utf-8'))
         button = Button(mk, text='SEND', width=25, command=lambda: send())
         button.grid(row=1, column=1, sticky="NEWS")
+
+        file_button = Button(mk, text='SEND FILE', width=25, command=send_file)
+        file_button.grid(row=0, column=2, sticky="NEWS")
 
         def recv():
 
