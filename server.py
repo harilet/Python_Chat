@@ -28,6 +28,7 @@ def client(m, ip, port):
 
             data = sendtext.get()
             s.send(data.encode('utf-8'))
+            editArea.insert(INSERT, "YOU" + ":" + data+ "\n")
             sendtext.delete(0, 'end')
 
         button = Button(mk, text='SEND', width=25, command=lambda: send())
@@ -37,7 +38,7 @@ def client(m, ip, port):
 
             while True:
                 data = s.recv(1024)
-                editArea.insert(INSERT, data.decode('utf-8', 'strict')+"\n")
+                editArea.insert(INSERT, ip+":"+data.decode('utf-8', 'strict')+"\n")
                 if data == "stop":
                     break
 
