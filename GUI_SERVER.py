@@ -9,7 +9,7 @@ def client(m, ip, port):
         m.destroy()
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         c.bind((ip, int(port)))
-        c.listen(3)
+        c.listen(30)
 
         mk = Tk()
         mk.title(ip)
