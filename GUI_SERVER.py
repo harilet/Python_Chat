@@ -2,14 +2,14 @@ import socket
 from threading import *
 from tkinter import *
 import tkinter.scrolledtext as tkst
-
+from tkinter.filedialog import askopenfilename
 
 def client(m, ip, port):
     try:
         m.destroy()
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         c.bind((ip, int(port)))
-        c.listen(30)
+        c.listen(3)
 
         mk = Tk()
         mk.title(ip)
@@ -38,6 +38,16 @@ def client(m, ip, port):
                     editArea.config(state=DISABLED)
             if d == "s":
                 send(s)
+            elif d == "f":
+                filename = askopenfilename()
+                fp = open(filename, "r")
+                for i in cli_list:
+                    i.send("server:".encode('utf-8'))
+                    for j in fp:
+                        i.send(j.encode('utf-8'))
+                        editArea.config(state=NORMAL)
+                        editArea.insert(INSERT, j)
+                        editArea.config(state=DISABLED)
             else:
                 while True:
                     data = s.recv(1024)
@@ -61,6 +71,9 @@ def client(m, ip, port):
         button=Button(mk, text='SEND', width=25, command=lambda: cli("server:" + sendtext.get() + "\n", "s"))
         button.grid(row=1, column=1, sticky="NEWS")
 
+        file_button = Button(mk, text='SEND FILE', width=25, command=lambda: cli("", "f"))
+        file_button.grid(row=0, column=2, sticky="NEWS")
+
         mk.mainloop()
 
         for i in cli_list:
@@ -81,7 +94,7 @@ try:
     ip.grid(row=0, column=1)
     port.grid(row=0, column=3)
 
-    button = Button(m, text='CONNECT', width=25, command=lambda: client(m,ip.get(), port.get()))
+    button = Button(m, text='HOST', width=25, command=lambda: client(m,ip.get(), port.get()))
     button.grid(row=1, column=2, sticky="NEWS")
 
 except Exception as a:
